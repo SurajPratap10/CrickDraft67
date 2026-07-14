@@ -3145,20 +3145,42 @@ button {
   .hero-eyebrow {
     font-size: 0.58rem;
     letter-spacing: 0.16em;
+    order: 1;
   }
 
   .hero-score {
     margin: 0.35rem 0 0.75rem;
+    order: 2;
+  }
+
+  .hero-title {
+    order: 3;
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
   }
 
   .hero-desc {
     font-size: 0.95rem;
     margin-bottom: 0.85rem;
+    order: 4;
   }
 
   .hero-illustration {
+    order: 5;
     max-width: 200px;
     margin: 0 auto 1.1rem;
+  }
+
+  .hero-cta-row {
+    order: 6;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-content .control-block {
+    order: 7;
   }
 
   .hero-pitch-frame {
@@ -3179,10 +3201,6 @@ button {
 
   .hero-player-name {
     font-size: 0.48rem;
-  }
-
-  .hero-cta-row {
-    margin-bottom: 1.5rem;
   }
 
   .home-cta-main {
