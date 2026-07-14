@@ -9,7 +9,7 @@ import {
   getWinTargetLabel,
 } from '../utils/format';
 import { isKnockedOut, isPerfectRun } from '../utils/leaderboard';
-import { trackBeginSimulation, trackCompleteGame, trackReplay } from '../utils/analytics';
+import { trackBeginSimulation, trackCompleteGame, trackMatchScorecardOpen, trackReplay, trackSimulationSkipAll } from '../utils/analytics';
 
 interface SimulationResultProps {
   result: SimResult;
@@ -25,7 +25,7 @@ type SimStep = 'ready' | 'animating' | 'result' | 'done';
 
 const ANIMATION_MS = 2400;
 
-function MatchCard({ match }: { match: MatchResult }) {
+function MatchCard({ match, format }: { match: MatchResult; format: TournamentFormat }) {
   const resultLabel =
     match.result === 'win' ? 'WON' : match.result === 'loss' ? 'LOST' : 'TIED';
   const resultClass = `match-card-result match-card-result--${match.result}`;
@@ -64,7 +64,14 @@ function MatchCard({ match }: { match: MatchResult }) {
         </div>
       </div>
 
-      <details className="match-card-details">
+      <details
+        className="match-card-details"
+        onToggle={(e) => {
+          if ((e.target as HTMLDetailsElement).open) {
+            trackMatchScorecardOpen(match.match, format);
+          }
+        }}
+      >
         <summary>Full scorecard</summary>
         <table className="match-detail-table">
           <thead>
@@ -160,9 +167,10 @@ export function SimulationResult({ result, onPlayAgain, meta }: SimulationResult
   }, []);
 
   const simulateAll = useCallback(() => {
+    trackSimulationSkipAll(meta.format, meta.mode);
     setRevealed(result.matches);
     setStep('done');
-  }, [result.matches]);
+  }, [result.matches, meta.format, meta.mode]);
 
   const isEliminated = currentMatch?.result === 'loss';
   const knockedOut = isKnockedOut(result);
@@ -313,7 +321,7 @@ export function SimulationResult({ result, onPlayAgain, meta }: SimulationResult
               {isEliminated && (
                 <p className="sim-knockout-banner">Campaign over · knocked out in match {currentMatch.match}</p>
               )}
-              <MatchCard match={currentMatch} />
+              <MatchCard match={currentMatch} format={meta.format} />
               <div className="sim-live-actions">
                 {isEliminated ? (
                   <button type="button" className="btn btn-primary" onClick={finishCampaign}>
@@ -381,7 +389,7 @@ export function SimulationResult({ result, onPlayAgain, meta }: SimulationResult
             </p>
             <div className="match-feed-list">
               {result.matches.map((match) => (
-                <MatchCard key={match.match} match={match} />
+                <MatchCard key={match.match} match={match} format={meta.format} />
               ))}
             </div>
           </section>

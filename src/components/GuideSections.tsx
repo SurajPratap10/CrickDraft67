@@ -2,6 +2,7 @@ import { RoleGuide } from './RoleGuide';
 import { useEffect, useState } from 'react';
 import { BRAND } from '../config/brand';
 import { BrandName } from './BrandName';
+import { trackFaqOpen } from '../utils/analytics';
 
 const FAQ_ITEMS = [
   {
@@ -106,7 +107,13 @@ function FaqAccordion() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggle = (index: number) => {
-    setOpenIndex((prev) => (prev === index ? null : index));
+    setOpenIndex((prev) => {
+      const next = prev === index ? null : index;
+      if (next !== null) {
+        trackFaqOpen(index, FAQ_ITEMS[index].q);
+      }
+      return next;
+    });
   };
 
   return (

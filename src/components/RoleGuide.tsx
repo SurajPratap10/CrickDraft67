@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from 'react';
+import { trackRoleClick } from '../utils/analytics';
 
 type RoleKey = 'WK' | 'OP' | 'MO' | 'AR' | 'BWL' | 'SP';
 
@@ -141,7 +142,11 @@ export function RoleGuide() {
                 key={role.key}
                 type="button"
                 className={`role-card ${isActive ? 'is-active' : ''}`}
-                onClick={() => setActive(isActive ? null : role.key)}
+                onClick={() => {
+                  const next = isActive ? null : role.key;
+                  if (next) trackRoleClick(role.key);
+                  setActive(next);
+                }}
                 aria-pressed={isActive}
                 style={{ '--role-color': role.color } as CSSProperties}
               >

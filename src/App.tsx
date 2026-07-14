@@ -12,7 +12,9 @@ import {
   observeContentSections,
   trackCtaClick,
   trackHashSection,
+  trackSectionClick,
   trackSectionView,
+  trackSettingChange,
 } from './utils/analytics';
 import './styles/globals.css';
 
@@ -56,8 +58,19 @@ function App() {
     document.getElementById('game')?.scrollIntoView({ behavior: 'smooth' });
   }, [gameContext]);
 
+  const handleFormatChange = useCallback((format: TournamentFormat) => {
+    trackSettingChange('format', format);
+    setTournamentFormat(format);
+  }, []);
+
+  const handleModeChange = useCallback((next: GameMode) => {
+    trackSettingChange('mode', next);
+    setMode(next);
+  }, []);
+
   const handleStyleChange = useCallback(
     (next: PlayStyle) => {
+      trackSettingChange('style', next);
       setStyle(next);
       if (!inGame) {
         setFormationId(getFormationForStyle(next));
@@ -65,6 +78,16 @@ function App() {
     },
     [inGame],
   );
+
+  const handleFormationChange = useCallback((id: string) => {
+    trackSettingChange('formation', id);
+    setFormationId(id);
+  }, []);
+
+  const handleGameFormationChange = useCallback((id: string) => {
+    trackSettingChange('formation', id, 'game');
+    setFormationId(id);
+  }, []);
 
   const handleFooterPlay = useCallback(() => {
     trackCtaClick('play_now', { ...gameContext(), location: 'footer' });
@@ -80,10 +103,10 @@ function App() {
         mode={mode}
         style={style}
         formationId={formationId}
-        onFormatChange={setTournamentFormat}
-        onModeChange={setMode}
+        onFormatChange={handleFormatChange}
+        onModeChange={handleModeChange}
         onStyleChange={handleStyleChange}
-        onFormationChange={setFormationId}
+        onFormationChange={handleFormationChange}
         onPlayNow={scrollToGame}
         inGame={inGame}
       />
@@ -96,7 +119,7 @@ function App() {
             mode={mode}
             style={style}
             formationId={formationId}
-            onFormationChange={setFormationId}
+            onFormationChange={handleGameFormationChange}
           />
         </div>
 
@@ -115,8 +138,12 @@ function App() {
             <a href="#game" onClick={handleFooterPlay}>
               Play now
             </a>
-            <a href="#how-to-play">How to play</a>
-            <a href="#faq">FAQ</a>
+            <a href="#how-to-play" onClick={() => trackSectionClick('how-to-play', 'footer')}>
+              How to play
+            </a>
+            <a href="#faq" onClick={() => trackSectionClick('faq', 'footer')}>
+              FAQ
+            </a>
             <a href="#top">Back to top</a>
           </nav>
           <p className="site-footer-copy">

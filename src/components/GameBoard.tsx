@@ -27,7 +27,7 @@ import {
   playerKey,
 } from '../utils/gameLogic';
 import { simulateTournament } from '../utils/simulation';
-import { trackBeginDraft, trackCompleteDraft } from '../utils/analytics';
+import { trackBeginDraft, trackCompleteDraft, trackReroll } from '../utils/analytics';
 import { CricketField } from './CricketField';
 import { DraftPanel } from './DraftPanel';
 import { DraftProgress } from './DraftProgress';
@@ -122,6 +122,7 @@ export function GameBoard({
     if (!draw || rerollsLeft <= 0 || nationRerollOptions === 0) return;
     const squad = getAnotherNationSquad(tournamentFormat, draw.nation, draw.id, usedSquadIds);
     if (!squad) return;
+    trackReroll('nation', tournamentFormat, rerollsLeft - 1);
     setDraw(squad);
     setRerollsLeft((r) => r - 1);
     setSelectedPlayer(null);
@@ -131,6 +132,7 @@ export function GameBoard({
     if (!draw || rerollsLeft <= 0 || wcRerollOptions === 0) return;
     const squad = getSameNationOtherWorldCup(tournamentFormat, draw.nation, draw.id, usedSquadIds);
     if (!squad) return;
+    trackReroll('world_cup', tournamentFormat, rerollsLeft - 1);
     setDraw(squad);
     setRerollsLeft((r) => r - 1);
     setSelectedPlayer(null);

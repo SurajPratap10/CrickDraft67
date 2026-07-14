@@ -1,5 +1,6 @@
 import { BRAND } from '../config/brand';
 import { BrandName } from './BrandName';
+import { trackSectionClick, trackThemeToggle } from '../utils/analytics';
 
 interface HeaderProps {
   theme: 'light' | 'dark';
@@ -7,11 +8,11 @@ interface HeaderProps {
 }
 
 const NAV_LINKS = [
-  { href: '#how-to-play', label: 'How to play' },
-  { href: '#rules', label: 'Rules' },
-  { href: '#roles', label: 'Roles' },
-  { href: '#strategy', label: 'Strategy' },
-  { href: '#faq', label: 'FAQ' },
+  { href: '#how-to-play', section: 'how-to-play', label: 'How to play' },
+  { href: '#rules', section: 'rules', label: 'Rules' },
+  { href: '#roles', section: 'roles', label: 'Roles' },
+  { href: '#strategy', section: 'strategy', label: 'Strategy' },
+  { href: '#faq', section: 'faq', label: 'FAQ' },
 ] as const;
 
 export function Header({ theme, onToggleTheme }: HeaderProps) {
@@ -24,7 +25,11 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
 
         <div className="home-nav-links" aria-label="Page sections">
           {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href}>
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => trackSectionClick(link.section, 'header')}
+            >
               {link.label}
             </a>
           ))}
@@ -34,7 +39,11 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
           <button
             type="button"
             className="theme-toggle"
-            onClick={onToggleTheme}
+            onClick={() => {
+              const next = theme === 'light' ? 'dark' : 'light';
+              trackThemeToggle(next);
+              onToggleTheme();
+            }}
             aria-label="Switch light or dark theme"
           >
             {theme === 'light' ? 'Light' : 'Dark'}
@@ -44,7 +53,11 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
 
       <nav className="home-nav-mobile" aria-label="Mobile page sections">
         {NAV_LINKS.map((link) => (
-          <a key={link.href} href={link.href}>
+          <a
+            key={link.href}
+            href={link.href}
+            onClick={() => trackSectionClick(link.section, 'mobile')}
+          >
             {link.label}
           </a>
         ))}

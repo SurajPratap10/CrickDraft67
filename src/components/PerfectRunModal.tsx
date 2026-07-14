@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { SimulationResult } from '../types';
 import type { PerfectRunMeta } from '../utils/leaderboard';
 import { getMatchCount, getPerfectRunRecord } from '../utils/format';
 import { getEntryRank, getLeaderboard, savePerfectRun } from '../utils/leaderboard';
+import { trackLeaderboardSubmit, trackPerfectRunModal } from '../utils/analytics';
 
 interface PerfectRunModalProps {
   result: SimulationResult;
@@ -16,6 +17,10 @@ export function PerfectRunModal({ result, meta, onClose }: PerfectRunModalProps)
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    trackPerfectRunModal(meta.format);
+  }, [meta.format]);
+
   const handleSubmit = () => {
     const trimmed = name.trim();
     if (!trimmed) {
@@ -24,7 +29,9 @@ export function PerfectRunModal({ result, meta, onClose }: PerfectRunModalProps)
     }
 
     const entry = savePerfectRun(result, meta, trimmed);
-    setRank(getEntryRank(entry.id, getLeaderboard()));
+    const newRank = getEntryRank(entry.id, getLeaderboard());
+    trackLeaderboardSubmit(meta.format, newRank);
+    setRank(newRank);
     setSubmitted(true);
     setError('');
   };

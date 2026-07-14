@@ -6,6 +6,7 @@ import {
   LEADERBOARD_REFRESH_EVENT,
 } from '../utils/leaderboard';
 import { getPerfectRunRecord } from '../utils/format';
+import { trackLeaderboardRulesOpen } from '../utils/analytics';
 
 function formatCountdown(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);
@@ -101,7 +102,12 @@ export function Leaderboard24h() {
         </ol>
       )}
 
-      <details className="leaderboard-rules">
+      <details
+        className="leaderboard-rules"
+        onToggle={(e) => {
+          if ((e.target as HTMLDetailsElement).open) trackLeaderboardRulesOpen();
+        }}
+      >
         <summary>Ranking rules</summary>
         <p>
           Only perfect unbeaten runs qualify — 6-0 in T20, 7-0 in ODI. Ranking sorts by run

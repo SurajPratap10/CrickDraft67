@@ -3,6 +3,8 @@ import { BRAND } from '../config/brand';
 import { toPng } from 'html-to-image';
 import type { SimulationResult as SimResult, TournamentFormat } from '../types';
 import { getPerfectRunRecord, shortName } from '../utils/format';
+import { isPerfectRun } from '../utils/leaderboard';
+import { trackCardDownload } from '../utils/analytics';
 
 interface ChampionCardProps {
   result: SimResult;
@@ -26,6 +28,7 @@ export function ChampionCard({ result, format }: ChampionCardProps) {
       link.download = `${BRAND.slug}-${result.seed}-${record}.png`;
       link.href = dataUrl;
       link.click();
+      trackCardDownload(format, isPerfectRun(result));
     } finally {
       setDownloading(false);
     }
