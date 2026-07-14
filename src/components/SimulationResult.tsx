@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GameMode, MatchResult, SimulationResult as SimResult, TournamentFormat } from '../types';
 import { ChampionCard } from './ChampionCard';
 import { PerfectRunModal } from './PerfectRunModal';
@@ -9,6 +9,7 @@ import {
   getWinTargetLabel,
 } from '../utils/format';
 import { isKnockedOut, isPerfectRun } from '../utils/leaderboard';
+import { trackBeginSimulation, trackCompleteGame, trackReplay } from '../utils/analytics';
 
 interface SimulationResultProps {
   result: SimResult;
@@ -113,6 +114,7 @@ export function SimulationResult({ result, onPlayAgain, meta }: SimulationResult
   const [revealed, setRevealed] = useState<MatchResult[]>([]);
   const [showOutcome, setShowOutcome] = useState(false);
   const [showPerfectModal, setShowPerfectModal] = useState(false);
+  const completeTracked = useRef(false);
 
   const totalMatches = result.totalMatches;
   const perfectRecord = getPerfectRunRecord(meta.format);
@@ -132,11 +134,16 @@ export function SimulationResult({ result, onPlayAgain, meta }: SimulationResult
   }, [revealed]);
 
   const startTournament = useCallback(() => {
+    trackBeginSimulation({
+      format: meta.format,
+      mode: meta.mode,
+      formation: meta.formation,
+    });
     setMatchIndex(0);
     setRevealed([]);
     setShowOutcome(false);
     setStep('animating');
-  }, []);
+  }, [meta.format, meta.mode, meta.formation]);
 
   const goToNextMatch = useCallback(() => {
     if (matchIndex >= result.matches.length - 1) {
@@ -184,6 +191,26 @@ export function SimulationResult({ result, onPlayAgain, meta }: SimulationResult
       setShowPerfectModal(true);
     }
   }, [step, result]);
+
+  useEffect(() => {
+    if (step !== 'done' || completeTracked.current) return;
+    completeTracked.current = true;
+    trackCompleteGame({
+      format: meta.format,
+      mode: meta.mode,
+      formation: meta.formation,
+      wins: result.wins,
+      losses: result.losses,
+      ties: result.ties,
+      perfect_run: isPerfectRun(result),
+      knocked_out: knockedOut,
+    });
+  }, [step, result, meta.format, meta.mode, meta.formation, knockedOut]);
+
+  const handlePlayAgain = useCallback(() => {
+    trackReplay({ format: meta.format, mode: meta.mode });
+    onPlayAgain();
+  }, [meta.format, meta.mode, onPlayAgain]);
 
   const outcomeLabel =
     currentMatch?.result === 'win'
@@ -378,7 +405,7 @@ export function SimulationResult({ result, onPlayAgain, meta }: SimulationResult
       )}
 
       <div className="sim-actions">
-        <button type="button" className="btn btn-secondary" onClick={onPlayAgain}>
+        <button type="button" className="btn btn-secondary" onClick={handlePlayAgain}>
           Draft again
         </button>
       </div>

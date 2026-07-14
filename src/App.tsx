@@ -8,6 +8,12 @@ import { Hero } from './components/Hero';
 import { Leaderboard24h } from './components/Leaderboard24h';
 import { BRAND } from './config/brand';
 import { BrandName } from './components/BrandName';
+import {
+  observeContentSections,
+  trackCtaClick,
+  trackHashSection,
+  trackSectionView,
+} from './utils/analytics';
 import './styles/globals.css';
 
 function App() {
@@ -22,10 +28,33 @@ function App() {
     document.documentElement.classList.toggle('theme-dark', theme === 'dark');
   }, [theme]);
 
+  useEffect(() => {
+    trackHashSection();
+    const onHashChange = () => trackHashSection();
+    window.addEventListener('hashchange', onHashChange);
+    const disconnect = observeContentSections();
+    return () => {
+      window.removeEventListener('hashchange', onHashChange);
+      disconnect();
+    };
+  }, []);
+
+  const gameContext = useCallback(
+    () => ({
+      format: tournamentFormat,
+      mode,
+      style,
+      formation: formationId,
+    }),
+    [tournamentFormat, mode, style, formationId],
+  );
+
   const scrollToGame = useCallback(() => {
+    trackCtaClick('play_now', { ...gameContext(), location: 'hero' });
+    trackSectionView('game');
     setInGame(true);
     document.getElementById('game')?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
+  }, [gameContext]);
 
   const handleStyleChange = useCallback(
     (next: PlayStyle) => {
@@ -37,12 +66,14 @@ function App() {
     [inGame],
   );
 
+  const handleFooterPlay = useCallback(() => {
+    trackCtaClick('play_now', { ...gameContext(), location: 'footer' });
+    trackSectionView('game');
+  }, [gameContext]);
+
   return (
     <div className="home-wrap" id="top">
-      <Header
-        theme={theme}
-        onToggleTheme={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
-      />
+      <Header theme={theme} onToggleTheme={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))} />
 
       <Hero
         tournamentFormat={tournamentFormat}
@@ -81,7 +112,9 @@ function App() {
           </p>
           <p className="site-footer-tag">{BRAND.shortDescription}</p>
           <nav className="site-footer-nav" aria-label="Footer">
-            <a href="#game">Play now</a>
+            <a href="#game" onClick={handleFooterPlay}>
+              Play now
+            </a>
             <a href="#how-to-play">How to play</a>
             <a href="#faq">FAQ</a>
             <a href="#top">Back to top</a>

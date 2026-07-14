@@ -27,6 +27,7 @@ import {
   playerKey,
 } from '../utils/gameLogic';
 import { simulateTournament } from '../utils/simulation';
+import { trackBeginDraft, trackCompleteDraft } from '../utils/analytics';
 import { CricketField } from './CricketField';
 import { DraftPanel } from './DraftPanel';
 import { DraftProgress } from './DraftProgress';
@@ -101,11 +102,21 @@ export function GameBoard({
   const startDraw = useCallback(() => {
     const squad = getRandomSquad(tournamentFormat, usedSquadIds);
     if (!squad) return;
+
+    if (picksMade === 0 && phase === 'setup') {
+      trackBeginDraft({
+        format: tournamentFormat,
+        mode,
+        style,
+        formation: formationId,
+      });
+    }
+
     setDraw(squad);
     setRerollsLeft(INITIAL_REROLLS);
     setSelectedPlayer(null);
     setPhase('drafting');
-  }, [tournamentFormat, usedSquadIds]);
+  }, [tournamentFormat, usedSquadIds, picksMade, phase, mode, style, formationId]);
 
   const handleRerollNation = useCallback(() => {
     if (!draw || rerollsLeft <= 0 || nationRerollOptions === 0) return;
@@ -141,6 +152,7 @@ export function GameBoard({
       if (draftedKeys.has(playerKey(selectedPlayer.name))) return;
 
       const newLineup = assignPlayer(selectedPlayer, slotIndex, draw, lineup);
+
       setLineup(newLineup);
       setUsedSquadIds((prev) => [...prev, draw.id]);
       setSelectedPlayer(null);
@@ -149,11 +161,17 @@ export function GameBoard({
 
       if (isLineupComplete(newLineup)) {
         const filled = newLineup.filter(Boolean) as DraftedPlayer[];
+        trackCompleteDraft({
+          format: tournamentFormat,
+          mode,
+          style,
+          formation: formationId,
+        });
         setSimulation(simulateTournament(filled, style, tournamentFormat));
         setPhase('simulating');
       }
     },
-    [selectedPlayer, draw, formation, lineup, style, draftedKeys],
+    [selectedPlayer, draw, formation, lineup, style, draftedKeys, tournamentFormat, mode, formationId],
   );
 
   const resetGame = useCallback(() => {
