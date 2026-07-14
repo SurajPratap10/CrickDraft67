@@ -14,9 +14,9 @@ const HERO_XI = [
   { number: 23, name: 'Warne', role: 'SP' },
 ] as const;
 
-export function HeroIllustration() {
+export function HeroIllustration({ variant = 'desktop' }: { variant?: 'mobile' | 'desktop' }) {
   return (
-    <div className="hero-illustration" aria-hidden="true">
+    <div className={`hero-illustration hero-illustration--${variant}`} aria-hidden="true">
       <div className="hero-pitch-frame">
         <div className="hero-pitch-oval">
           <div className="hero-pitch-stripes" />

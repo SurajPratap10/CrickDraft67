@@ -53,7 +53,7 @@ export function Hero({
             World Cup XI 🏏
           </h1>
           <p className="hero-desc">{BRAND.shortDescription}</p>
-          <HeroIllustration />
+          <HeroIllustration variant="mobile" />
           <div className="hero-cta-row">
             <button type="button" className="btn btn-primary home-cta-main" onClick={onPlayNow}>
               Play now
@@ -153,6 +153,8 @@ export function Hero({
             </>
           )}
         </div>
+
+        <HeroIllustration variant="desktop" />
       </div>
     </section>
   );
