@@ -288,6 +288,16 @@ button {
     grid-template-columns: minmax(0, 1.05fr) minmax(240px, 0.95fr);
     gap: 2rem;
   }
+
+  .hero-content {
+    display: contents;
+  }
+
+  .hero-illustration {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -306,14 +316,6 @@ button {
   justify-content: center;
   align-items: center;
   width: 100%;
-}
-
-@media (max-width: 767px) {
-  .hero-illustration {
-    order: -1;
-    max-width: min(100%, 320px);
-    margin: 0 auto;
-  }
 }
 
 .hero-pitch-frame {
@@ -3151,7 +3153,32 @@ button {
 
   .hero-desc {
     font-size: 0.95rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .hero-illustration {
+    max-width: 200px;
+    margin: 0 auto 1.1rem;
+  }
+
+  .hero-pitch-frame {
+    max-width: 200px;
+    padding: 0.45rem;
+    border-radius: 1rem;
+  }
+
+  .hero-player {
+    width: 3.25rem;
+  }
+
+  .hero-player-badge {
+    width: 1.85rem;
+    height: 1.85rem;
+    font-size: 0.82rem;
+  }
+
+  .hero-player-name {
+    font-size: 0.48rem;
   }
 
   .hero-cta-row {
