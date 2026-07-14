@@ -16,11 +16,24 @@ declare global {
 }
 
 let initialized = false;
-const viewedSections = new Set<string>();
+const viewedSections = new Set<string>(['top']);
+
+function gtagReady(): boolean {
+  return typeof window.gtag === 'function';
+}
 
 function sendEvent(eventName: string, params?: Record<string, string | number | boolean>): void {
-  if (typeof window.gtag !== 'function') return;
-  window.gtag('event', eventName, params);
+  if (!gtagReady()) return;
+  window.gtag!('event', eventName, params);
+}
+
+function sendPageView(pagePath: string, pageTitle: string, pageLocation?: string): void {
+  if (!gtagReady()) return;
+  window.gtag!('config', GA_MEASUREMENT_ID, {
+    page_path: pagePath,
+    page_title: pageTitle,
+    ...(pageLocation ? { page_location: pageLocation } : {}),
+  });
 }
 
 function gameParams(ctx: GameContext): Record<string, string> {
@@ -32,33 +45,18 @@ function gameParams(ctx: GameContext): Record<string, string> {
   };
 }
 
+/** Hook into gtag loaded from index.html — no duplicate script injection */
 export function initAnalytics(): void {
-  if (initialized || !GA_MEASUREMENT_ID) return;
+  if (initialized) return;
 
   window.dataLayer = window.dataLayer ?? [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer!.push(args);
-  };
-  window.gtag('js', new Date());
-  window.gtag('config', GA_MEASUREMENT_ID, { send_page_view: false });
+  if (!window.gtag) {
+    window.gtag = function gtag(...args: unknown[]) {
+      window.dataLayer!.push(args);
+    };
+  }
 
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-  document.head.appendChild(script);
-
-  trackLandingPage();
   initialized = true;
-}
-
-/** Initial home page view */
-export function trackLandingPage(): void {
-  sendEvent('page_view', {
-    page_title: 'Crickdraft67 — Cricket World Cup Draft Game',
-    page_path: '/',
-    page_location: window.location.href.split('#')[0],
-  });
-  viewedSections.add('top');
 }
 
 /**
@@ -74,12 +72,7 @@ export function trackSectionView(sectionId: string): void {
   viewedSections.add(sectionId);
 
   const base = window.location.href.split('#')[0];
-  sendEvent('page_view', {
-    page_title: `${section.title} — Crickdraft67`,
-    page_path: section.path,
-    page_location: `${base}#${sectionId}`,
-    content_group: sectionId,
-  });
+  sendPageView(section.path, `${section.title} — Crickdraft67`, `${base}#${sectionId}`);
 }
 
 /** Main CTA — Play now (hero, footer, etc.) */
