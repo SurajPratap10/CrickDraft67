@@ -17,7 +17,6 @@ function App() {
   const [style, setStyle] = useState<PlayStyle>('balanced');
   const [formationId, setFormationId] = useState(DEFAULT_FORMATION);
   const [inGame, setInGame] = useState(false);
-  const [debugFlow, setDebugFlow] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('theme-dark', theme === 'dark');
@@ -43,8 +42,6 @@ function App() {
       <Header
         theme={theme}
         onToggleTheme={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
-        debugFlow={debugFlow}
-        onToggleDebug={() => setDebugFlow((value) => !value)}
       />
 
       <Hero
@@ -63,13 +60,12 @@ function App() {
       <div className="play-shell">
         <div id="game">
           <GameBoard
-            key={`${tournamentFormat}-${debugFlow}`}
+            key={tournamentFormat}
             tournamentFormat={tournamentFormat}
             mode={mode}
             style={style}
             formationId={formationId}
             onFormationChange={setFormationId}
-            debugFlow={debugFlow}
           />
         </div>
 

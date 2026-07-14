@@ -4,11 +4,9 @@ import { BrandName } from './BrandName';
 interface HeaderProps {
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
-  debugFlow: boolean;
-  onToggleDebug: () => void;
 }
 
-export function Header({ theme, onToggleTheme, debugFlow, onToggleDebug }: HeaderProps) {
+export function Header({ theme, onToggleTheme }: HeaderProps) {
   return (
     <header className="home-head">
       <nav className="home-nav" aria-label="Main navigation">
@@ -25,15 +23,6 @@ export function Header({ theme, onToggleTheme, debugFlow, onToggleDebug }: Heade
         </div>
 
         <div className="home-nav-actions">
-          <button
-            type="button"
-            className={`theme-toggle debug-toggle ${debugFlow ? 'is-active' : ''}`}
-            onClick={onToggleDebug}
-            aria-pressed={debugFlow}
-            aria-label="Toggle debug two-player simulation mode"
-          >
-            Debug 2P
-          </button>
           <button
             type="button"
             className="theme-toggle"

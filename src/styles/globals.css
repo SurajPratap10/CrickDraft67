@@ -67,51 +67,10 @@ button {
   background: var(--paper);
 }
 
-.theme-toggle.is-active,
-.debug-toggle.is-active {
+.theme-toggle.is-active {
   background: var(--accent);
   color: white;
   box-shadow: 2px 2px 0 var(--ink);
-}
-
-.debug-panel {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.debug-banner {
-  border: 2px dashed var(--accent);
-  background: color-mix(in srgb, var(--accent) 8%, var(--paper));
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.15rem;
-  margin-bottom: 1.25rem;
-}
-
-.debug-banner-label {
-  margin: 0 0 0.25rem;
-  font-size: 0.62rem;
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.debug-banner-copy {
-  margin: 0;
-  font-size: 0.82rem;
-  color: var(--muted);
-  line-height: 1.45;
-}
-
-.debug-pool-list {
-  margin-bottom: 1rem;
-}
-
-.debug-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .home-head {

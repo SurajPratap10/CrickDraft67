@@ -28,7 +28,6 @@ import {
 } from '../utils/gameLogic';
 import { simulateTournament } from '../utils/simulation';
 import { CricketField } from './CricketField';
-import { DebugSimPanel } from './DebugSimPanel';
 import { DraftPanel } from './DraftPanel';
 import { DraftProgress } from './DraftProgress';
 import { SimulationResult as SimResultView } from './SimulationResult';
@@ -39,7 +38,6 @@ interface GameBoardProps {
   style: PlayStyle;
   formationId: string;
   onFormationChange: (id: string) => void;
-  debugFlow?: boolean;
 }
 
 const INITIAL_REROLLS = 2;
@@ -51,7 +49,6 @@ export function GameBoard({
   style,
   formationId,
   onFormationChange,
-  debugFlow = false,
 }: GameBoardProps) {
   const formatStats = useMemo(() => getFormatStats(tournamentFormat), [tournamentFormat]);
   const formation = useMemo(() => getFormation(formationId), [formationId]);
@@ -169,15 +166,6 @@ export function GameBoard({
     setPhase('setup');
   }, []);
 
-  const handleDebugStart = useCallback(
-    (filled: DraftedPlayer[]) => {
-      setLineup(filled);
-      setSimulation(simulateTournament(filled, style, tournamentFormat));
-      setPhase('simulating');
-    },
-    [style, tournamentFormat],
-  );
-
   if (phase === 'simulating' && simulation) {
     return (
       <SimResultView
@@ -185,22 +173,6 @@ export function GameBoard({
         onPlayAgain={resetGame}
         meta={{ formation: formationId, mode, format: tournamentFormat }}
       />
-    );
-  }
-
-  if (debugFlow) {
-    return (
-      <section className="game-area" aria-label="Debug simulation area">
-        <div className="game-panel">
-          <DebugSimPanel
-            tournamentFormat={tournamentFormat}
-            mode={mode}
-            style={style}
-            formationId={formationId}
-            onStartSimulation={handleDebugStart}
-          />
-        </div>
-      </section>
     );
   }
 
