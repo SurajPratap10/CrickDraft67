@@ -1,9 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { GameMode, Player, Squad, TournamentFormat } from '../types';
 import { FORMAT_LABELS } from '../data/squads';
 import { formatRoles, getKnockoutCopy, getMatchCount } from '../utils/format';
 import { getSquadStarPlayerIds, shufflePlayersForDisplay } from '../utils/gameLogic';
-import { PlayerStatCard } from './PlayerStatCard';
 
 type PlayerState = 'pickable' | 'drafted' | 'no-slot';
 
@@ -83,8 +82,6 @@ export function DraftPanel({
   }, [draw]);
 
   const pickableCount = [...playerStates.values()].filter((s) => s === 'pickable').length;
-  const [hoveredPlayer, setHoveredPlayer] = useState<Player | null>(null);
-  const previewPlayer = hoveredPlayer ?? selectedPlayer;
 
   return (
     <div className="draft-section">
@@ -139,16 +136,6 @@ export function DraftPanel({
         <span className="pool-count">{pickableCount} fit your XI</span>
       </div>
 
-      {previewPlayer && (
-        <PlayerStatCard
-          player={previewPlayer}
-          squad={draw}
-          mode={mode}
-          isStar={starIds.has(previewPlayer.id)}
-          isSelected={selectedPlayer?.id === previewPlayer.id}
-        />
-      )}
-
       <div className="pool-list">
         {players.map((player) => {
           const state = playerStates.get(player.id) ?? 'no-slot';
@@ -167,11 +154,7 @@ export function DraftPanel({
                 `pool-row--${state}`,
               ].filter(Boolean).join(' ')}
               onClick={() => canPick && onSelectPlayer(player)}
-              onMouseEnter={() => setHoveredPlayer(player)}
-              onMouseLeave={() => setHoveredPlayer(null)}
-              onFocus={() => setHoveredPlayer(player)}
-              onBlur={() => setHoveredPlayer(null)}
-              aria-disabled={!canPick}
+              disabled={!canPick}
             >
               <span className="pool-num">#{player.number}</span>
               <span className="pool-name">{player.name}</span>
